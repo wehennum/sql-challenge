@@ -1,73 +1,96 @@
-﻿-- Exported from QuickDBD: https://www.quickdatabasediagrams.com/
--- Link to schema: https://app.quickdatabasediagrams.com/#/d/BBkU2n
--- NOTE! If you have used non-SQL datatypes in your design, you will have to change these here.
+SELECT
+    e.emp_no AS employee_number,
+    e.last_name,
+    e.first_name,
+    e.sex,
+    s.salary
+FROM
+    employees e
+JOIN
+    salaries s ON e.emp_no = s.emp_no;
+	
+--List the first name, last name, and hire date for the employees who were hired in 1986
+SELECT
+	first_name,
+	last_name,
+	hire_date
+FROM
+	employees
+WHERE
+	EXTRACT(YEAR FROM hire_date) = 1986;
 
+--- List the manager of each department along with their department number, department name, employee number, last name, and first name 
+SELECT 
+	dm.dept_no AS department_number,
+	d.dept_name AS department_name,
+	dm.emp_no AS employee_number,
+	e.last_name, e.first_name 
+FROM
+	dept_manager dm 
+JOIN
+	department d ON dm.dept_no = d.dept_no
+JOIN
+	employees e ON dm.emp_no = e.emp_no
 
-CREATE TABLE "DEPT_EMP" (
-    "dept_no" VARCHAR(15)   NOT NULL,
-    "emp_no" VARCHAR(50)   NOT NULL,
-    CONSTRAINT "pk_DEPT_EMP" PRIMARY KEY (
-        "dept_no"
-     )
-);
+--- List the department number for each employee along with that employee’s employee number, last name, first name, and department name
+SELECT 
+	dm.dept_no AS department_number,
+	d.dept_name AS department_name,
+	dm.emp_no AS employee_number,
+	e.last_name, e.first_name
+FROM
+	dept_manager dm
+JOIN
+	department d ON dm.dept_no = d.dept_no
+JOIN 
+	employees e ON dm.emp_no = e.emp_no;
+	
+---List first name, last name, and sex of each employee whose first name is Hercules and whose last name begins with the letter B 
+SELECT
+	first_name,
+	last_name,
+	sex
+FROM
+	employees
+WHERE
+	first_name = 'Hercules' AND last_name LIKE 'B%'
+ 
+ --- List each employee in the Sales department, including their employee number, last name, and first name
+SELECT
+	e.emp_no AS employee_number,
+	e.first_name,
+	e.last_name	
+FROM
+	employees e
+JOIN
+	dept_emp de ON e.emp_no = de.emp_no
+JOIN 
+	departmnt d ON de.dept_no = d.dept_no
+WHERE
+	d.dept_name = 'Sales';
 
-CREATE TABLE "DEPARTMENT" (
-    "Dept_No" VARCHAR(15)   NOT NULL,
-    "Dept_Name" VARCHAR(50)   NOT NULL,
-    CONSTRAINT "pk_DEPARTMENT" PRIMARY KEY (
-        "Dept_No"
-     )
-);
-
-CREATE TABLE "EMPLOYEES" (
-    "emp_no" int   NOT NULL,
-    "emp_title_id" varchar(10)   NOT NULL,
-    "birth_date" date   NOT NULL,
-    "first_name" varchar(20)   NOT NULL,
-    "last_name" varchar(20)   NOT NULL,
-    "sex" varchar(10)   NOT NULL,
-    "hire_date" date   NOT NULL,
-    CONSTRAINT "pk_EMPLOYEES" PRIMARY KEY (
-        "emp_no"
-     )
-);
-
-CREATE TABLE "Salaries" (
-    "emp_no" VARCHAR(50)   NOT NULL,
-    "dept_no" VARCHAR(15)   NOT NULL,
-    CONSTRAINT "pk_Salaries" PRIMARY KEY (
-        "emp_no"
-     )
-);
-
-CREATE TABLE "Titles" (
-    "emp_title_id" varchar(10)   NOT NULL,
-    "title" varchar(20)   NOT NULL,
-    CONSTRAINT "pk_Titles" PRIMARY KEY (
-        "emp_title_id"
-     )
-);
-
-CREATE TABLE "Dept_Manager" (
-    "emp_no" int   NOT NULL,
-    "dept_no" varchar(10)   NOT NULL,
-    CONSTRAINT "pk_Dept_Manager" PRIMARY KEY (
-        "emp_no"
-     )
-);
-
-ALTER TABLE "DEPT_EMP" ADD CONSTRAINT "fk_DEPT_EMP_dept_no" FOREIGN KEY("dept_no")
-REFERENCES "DEPARTMENT" ("Dept_No");
-
-ALTER TABLE "DEPT_EMP" ADD CONSTRAINT "fk_DEPT_EMP_emp_no" FOREIGN KEY("emp_no")
-REFERENCES "EMPLOYEES" ("emp_no");
-
-ALTER TABLE "EMPLOYEES" ADD CONSTRAINT "fk_EMPLOYEES_emp_title_id" FOREIGN KEY("emp_title_id")
-REFERENCES "Titles" ("emp_title_id");
-
-ALTER TABLE "Salaries" ADD CONSTRAINT "fk_Salaries_emp_no" FOREIGN KEY("emp_no")
-REFERENCES "DEPT_EMP" ("emp_no");
-
-ALTER TABLE "Dept_Manager" ADD CONSTRAINT "fk_Dept_Manager_dept_no" FOREIGN KEY("dept_no")
-REFERENCES "DEPARTMENT" ("Dept_No");
-
+---List each employee in the Sales and Development departments, including their employee number, last name, first name, and department name 
+SELECT
+	e.emp_no AS employee_number,
+	e.first_name,
+	e.last_name,
+	d.dept_name AS department_name
+FROM
+	employees e
+JOIN
+	dept_emp de ON e.emp_no = de.emp_no
+JOIN 
+	department d ON de.dept_no = d.dept_no
+WHERE
+	d.dept_name IN ('Sales', 'Development');
+	
+--- List the frequency counts, in descending order, of all the employee last names
+SELECT
+	last_name, 
+	COUNT(*) AS name_frequency
+FROM
+	employees
+GROUP BY
+	last_name
+ORDER BY
+	name_frequency, last_name;
